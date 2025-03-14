@@ -1,5 +1,5 @@
 # MSCS631_WireShark_5
-Wireshark – Lab 4: IP
+Wireshark – Lab 5: IP
 
 **Samrat Baral**
 
