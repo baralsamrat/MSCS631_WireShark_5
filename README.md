@@ -26,9 +26,9 @@ The lab requires you to inspect packet headers in Wireshark, answer questions ab
 
 ## Output Screenshots
 
-![1](./screenshots/Capture-1.PNG)  
-![2](./screenshots/Capture-2.PNG)  
-![3](./screenshots/Capture-3.PNG)  
+![1](/screenshots/Capture-1.png)  
+![2](/screenshots/Capture-2.png)  
+![3](/screenshots/Capture-3.png)  
 
 
 ## Prerequisites
