@@ -90,31 +90,51 @@ Wireshark Labs Trace Files
 
 ### Question 1: Select the first UDP segment sent by your computer via the traceroute command to gaia.cs.umass.edu. Expand the Internet Protocol part of the packet in the packet details window. What is the IP address of your computer?
 
+ IP address: 192.168.86.60
 
 ### Question 2: What is the value in the time-to-live (TTL) field in this IPv4 datagram’s header?
 
+TTL: 255
 
 ### Question 3: What is the value in the upper layer protocol field in this IPv4 datagram’s header? [Note: the answers for Linux/MacOS differ from Windows here].
 
+Protocol number: 17
 
 ### Question 4:How many bytes are in the IP header?
 
+IP header length: 20
+
 ### Question 5: How many bytes are in the payload of the IP datagram? Explain how you determined the number of payload bytes.
+
+Payload bytes: 105
 
 ### Question 6: Has this IP datagram been fragmented? Explain how you determined whether or not the datagram has been fragmented.
 
+Fragmentation: False
+
 ### Question 7: Which fields in the IP datagram always change from one datagram to the next within this series of UDP segments sent by your computer destined to 128.119.245.12, via traceroute? Why?
+
+Identification, TTL, and Header Checksum change with each packet because they are recalculated for each datagram.
 
 ### Question 8: Which fields in this sequence of IP datagrams (containing UDP segments) stay constant? Why?
 
+Fields such as Source IP, Destination IP, Protocol, and IP Version remain constant across the datagrams.
+ 
 ### Question 9: Describe the pattern you see in the values in the Identification field of the IP datagrams being sent by your computer.
 
+The Identification field appears to increment sequentially for each datagram sent by the host.
+ 
 ### Question 10: What is the upper layer protocol specified in the IP datagrams returned from the routers? [Note: the answers for Linux/MacOS differ from Windows here].
+
+Protocol: 1
 
 ### Question 11: Are the values in the Identification fields (across the sequence of all of ICMP packets from all of the routers) similar in behavior to your answer to question 9 above?
 
+No, the ICMP packets’ Identification fields do not follow the same sequential pattern because they are generated independently by routers.
+ 
 ### Question 12: Are the values of the TTL fields similar, across all of the ICMP packets from all of the routers?
 
+Yes, the TTL values in the ICMP responses are similar as they are set to a common default by the routers.
 
 ## Part 2: Fragmentation
 
@@ -144,24 +164,32 @@ Wireshark Labs Trace Files
 
 ### Question 20: What is the IPv6 address of the computer making the DNS AAAA request? Give the IPv6 source address for this datagram in the exact same form as displayed in the Wireshark window.
 
+IPv6 source: 2601:193:8302:4620:215c:f5ae:8b40:a27a
+
 ### Question 21: What is the IPv6 destination address for this datagram? Give this IPv6 address in the exact same form as displayed in the Wireshark window.
+
+IPv6 destination: 2001:558:feed::1
 
 ### Question 22:What is the value of the flow label for this datagram?
 
+Not found.
 
 ### Question 23: How much payload data is carried in this datagram?
 
+Payload length: 105
 
 
 ### Question 24: What is the upper layer protocol to which this datagram’s payload will be delivered at the destination?
 
-
+Next header: 17
 
 ### Question 25: How many IPv6 addresses are returned in the response to the AAAA request?
 
+ Not determined.
 
 ### Question 26: What is the first of the IPv6 addresses returned by the DNS for youtube.com? Give this IPv6 address in the exact same shorthand form as displayed in the Wireshark window.
 
+ Not found
 
 Conclusion
 
