@@ -141,24 +141,31 @@ Yes, the TTL values in the ICMP responses are similar as they are set to a commo
 
 ### Question 13: Find the first IP datagram containing the first part of the segment sent to 128.119.245.12 by your computer (using traceroute with a packet length of 3000 bytes). Has that segment been fragmented across more than one IP datagram?
 
+Yes, the segment has been fragmented.
+
 ### Question 14: What information in the IP header indicates that this datagram has been fragmented?
 
+Fragment Offset: 185, Flags: 0x01
 
 ### Question 15: What information in the IP header for this packet indicates whether this is the first fragment versus a latter fragment?
 
+This is the first fragment (Fragment Offset is 0).
 
 ### Question 16: How many bytes are there in this IP datagram (header plus payload)?
 
+56
 
 ### Question 17: Inspect the datagram containing the second fragment of the fragmented UDP segment. What information in the IP header indicates that this is not the first datagram fragment?
 
+Fragment Offset is 185, indicating it is not the first fragment.
 
 ### Question 18: What fields change in the IP header between the first and second fragment?
 
+Between the first and second fragments, the Fragment Offset and Total Length fields change, while the Identification, Source IP, Destination IP, and Protocol fields remain the same.
 
 ### Question 19: Find the IP datagram containing the third fragment of the original UDP segment. What information in the IP header indicates that this is the last fragment of that segment?
 
-
+The absence of the 'More Fragments' (MF) flag indicates this is the last fragment.
 
 ## Part 3: IPv6
 
