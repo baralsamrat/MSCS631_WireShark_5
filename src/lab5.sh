@@ -12,7 +12,7 @@ else
 fi
 
 echo "Upgrading pip and installing required packages..."
-pip install --upgrade pip
+# pip install --upgrade pip
 pip install pyshark requests
 
 echo "Running lab5.py..."
