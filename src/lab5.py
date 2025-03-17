@@ -54,7 +54,6 @@ def answer_q1(cap):
     """Return the IP address of the computer from the first UDP traceroute segment."""
     for pkt in cap:
         if hasattr(pkt, 'udp') and hasattr(pkt, 'ip'):
-            # Assuming this is the first UDP segment sent by the host
             return pkt.ip.src
     return None
 
@@ -76,10 +75,9 @@ def answer_q4(cap):
     """Return the IP header length in bytes from the first UDP traceroute packet."""
     for pkt in cap:
         if hasattr(pkt, 'udp') and hasattr(pkt, 'ip'):
-            # Many dissectors report header length in 32-bit words; multiply by 4
             try:
                 ihl = int(pkt.ip.hdr_len)
-                return ihl  # if hdr_len is already in bytes, otherwise: ihl * 4
+                return ihl  # if hdr_len is already in bytes; adjust if needed
             except Exception:
                 pass
     return None
@@ -98,112 +96,134 @@ def answer_q5(cap):
     return None
 
 def answer_q6(cap):
-    """Determine if the IP datagram has been fragmented."""
+    """Determine if the IP datagram has been fragmented (for packets to 128.119.245.12)."""
     for pkt in cap:
         if hasattr(pkt, 'udp') and hasattr(pkt, 'ip'):
             try:
-                # Check if fragment offset is non-zero or if the More Fragments flag is set
-                frag_offset = int(pkt.ip.get_field('frag_offset'))
-                # Some dissectors expose the MF flag as part of the flags field
-                flags = pkt.ip.get_field('flags')
-                if frag_offset > 0 or ("MF" in flags):
-                    return True
-                else:
-                    return False
+                if pkt.ip.dst == "128.119.245.12":
+                    frag_offset = int(pkt.ip.get_field('frag_offset'))
+                    flags = pkt.ip.get_field('flags')
+                    if frag_offset > 0 or ("MF" in flags):
+                        return "Yes, the segment has been fragmented."
             except Exception:
-                return "Unknown"
-    return "Unknown"
+                continue
+    return "No fragmentation detected."
 
 def answer_q7(cap):
-    """Identify which IP header fields change among UDP segments to 128.119.245.12."""
-    # This answer is often conceptual; here we return a placeholder explanation.
+    """Identify which IP header fields change among UDP segments."""
     return "Identification, TTL, and Header Checksum change with each packet because they are recalculated for each datagram."
 
 def answer_q8(cap):
     """Identify which IP header fields stay constant among the UDP segments."""
-    return "Fields such as Source IP, Destination IP, Protocol, and IP Version remain constant across the datagrams."
+    return "Fields such as Source IP, Destination IP, Protocol, and IP Version remain constant."
 
 def answer_q9(cap):
     """Describe the pattern in the Identification field for the UDP segments."""
-    # Optionally, one could iterate through matching packets and check id values.
     return "The Identification field appears to increment sequentially for each datagram sent by the host."
 
 def answer_q10(cap):
     """Return the upper layer protocol from the IP datagrams returned by routers (ICMP TTL-exceeded messages)."""
     for pkt in cap:
         if hasattr(pkt, 'icmp') and hasattr(pkt, 'ip'):
-            return pkt.ip.proto  # Typically ICMP (protocol number 1)
+            return pkt.ip.proto  # Typically 1 for ICMP
     return None
 
 def answer_q11(cap):
-    """Compare the Identification fields in the ICMP packets from routers with those in Q9."""
-    return "No, the ICMP packets’ Identification fields do not follow the same sequential pattern because they are generated independently by routers."
+    """Compare the Identification fields in the ICMP packets with those in Q9."""
+    return "The ICMP packets’ Identification fields do not follow the same sequential pattern because they are generated independently by routers."
 
 def answer_q12(cap):
-    """Determine if the TTL fields in the ICMP packets are similar across routers."""
-    # This answer is conceptual; many routers use a default initial TTL (e.g., 255).
+    """Determine if the TTL fields in the ICMP packets are similar."""
     return "Yes, the TTL values in the ICMP responses are similar as they are set to a common default by the routers."
 
-# Part 2: Fragmentation (Questions 13–19)
+# Part 2: Fragmentation (Questions 13–19) – These functions assume you are using the IPv4 capture file.
 
 def answer_q13(cap):
-    """Determine if the large UDP segment (3000 bytes) has been fragmented."""
+    """Determine if the large UDP segment (3000 bytes) has been fragmented.
+       Look for packets destined to 128.119.245.12 with fragmentation indicators."""
     for pkt in cap:
-        if hasattr(pkt, 'udp') and hasattr(pkt, 'ip'):
+        if hasattr(pkt, 'ip') and hasattr(pkt, 'udp'):
             try:
-                total = int(pkt.ip.len)
-                if total >= 3000:
-                    # Check for fragmentation indicators
+                if pkt.ip.dst == "128.119.245.12":
                     frag_offset = int(pkt.ip.get_field('frag_offset'))
-                    if frag_offset > 0 or ("MF" in pkt.ip.get_field('flags')):
+                    flags = pkt.ip.get_field('flags')
+                    if frag_offset > 0 or ("MF" in flags):
                         return "Yes, the segment has been fragmented."
+            except Exception:
+                continue
+    return "No fragmentation detected."
+
+def answer_q14(cap):
+    """Return the header information that indicates fragmentation for a packet destined to 128.119.245.12."""
+    for pkt in cap:
+        if hasattr(pkt, 'ip'):
+            try:
+                if pkt.ip.dst == "128.119.245.12":
+                    frag_offset = int(pkt.ip.get_field('frag_offset'))
+                    flags = pkt.ip.get_field('flags')
+                    if frag_offset > 0 or ("MF" in flags):
+                        return f"Fragment Offset: {frag_offset}, Flags: {flags}"
+            except Exception:
+                continue
+    return "Fragmentation information not found."
+
+def answer_q15(cap):
+    """Indicate whether a given fragment is the first fragment or a subsequent one."""
+    for pkt in cap:
+        if hasattr(pkt, 'ip'):
+            try:
+                if pkt.ip.dst == "128.119.245.12":
+                    frag_offset = int(pkt.ip.get_field('frag_offset'))
+                    if frag_offset == 0:
+                        return "This is the first fragment (Fragment Offset is 0)."
                     else:
-                        return "No fragmentation detected."
+                        return f"This is a subsequent fragment (Fragment Offset: {frag_offset})."
+            except Exception:
+                continue
+    return "Fragmentation data not available."
+
+def answer_q16(cap):
+    """Return the total length (header plus payload) of a fragmented IP datagram destined to 128.119.245.12."""
+    for pkt in cap:
+        if hasattr(pkt, 'ip'):
+            try:
+                if pkt.ip.dst == "128.119.245.12":
+                    return pkt.ip.len
             except Exception:
                 continue
     return "Not determined."
 
-def answer_q14(cap):
-    """Return the IP header information that indicates fragmentation."""
-    # Typically, the presence of a non-zero Fragment Offset or the MF flag indicates fragmentation.
-    return "The presence of a non-zero Fragment Offset and/or the 'More Fragments' (MF) flag indicates fragmentation."
-
-def answer_q15(cap):
-    """Indicate whether the packet is the first fragment or a subsequent fragment."""
-    # A fragment with offset 0 is the first fragment.
-    for pkt in cap:
-        if hasattr(pkt, 'ip'):
-            try:
-                frag_offset = int(pkt.ip.get_field('frag_offset'))
-                if frag_offset == 0:
-                    return "This is the first fragment (Fragment Offset is 0)."
-                else:
-                    return "This is a subsequent fragment (Fragment Offset > 0)."
-            except Exception:
-                continue
-    return "Unknown"
-
-def answer_q16(cap):
-    """Return the total length (header plus payload) of an IP datagram that is fragmented."""
-    for pkt in cap:
-        if hasattr(pkt, 'ip'):
-            try:
-                return pkt.ip.len
-            except Exception:
-                continue
-    return None
-
 def answer_q17(cap):
     """Indicate what information shows that a given fragment is not the first fragment."""
-    return "A non-zero Fragment Offset indicates that the packet is not the first fragment."
+    for pkt in cap:
+        if hasattr(pkt, 'ip'):
+            try:
+                if pkt.ip.dst == "128.119.245.12":
+                    frag_offset = int(pkt.ip.get_field('frag_offset'))
+                    if frag_offset > 0:
+                        return f"Fragment Offset is {frag_offset}, indicating it is not the first fragment."
+            except Exception:
+                continue
+    return "Not determined."
 
 def answer_q18(cap):
-    """Describe which fields change between the first and second fragments."""
-    return "Between the first and second fragments, the Fragment Offset and Total Length fields differ, while the Identification, Source, Destination, and Protocol fields remain the same."
+    """Describe which fields change in the IP header between the first and second fragments."""
+    return ("Between the first and second fragments, the Fragment Offset and Total Length fields change, "
+            "while the Identification, Source IP, Destination IP, and Protocol fields remain the same.")
 
 def answer_q19(cap):
-    """Indicate what shows that the third fragment is the last fragment."""
-    return "The absence of the 'More Fragments' (MF) flag in the IP header indicates that this is the last fragment."
+    """Indicate what shows that a fragment is the last fragment."""
+    for pkt in cap:
+        if hasattr(pkt, 'ip'):
+            try:
+                if pkt.ip.dst == "128.119.245.12":
+                    flags = pkt.ip.get_field('flags')
+                    # If the 'MF' (More Fragments) flag is not set, it's the last fragment.
+                    if "MF" not in flags:
+                        return "The absence of the 'More Fragments' (MF) flag indicates this is the last fragment."
+            except Exception:
+                continue
+    return "Not determined."
 
 # Part 3: IPv6 (Questions 20–26)
 
@@ -250,7 +270,7 @@ def answer_q23(cap):
     return None
 
 def answer_q24(cap):
-    """Return the next header (upper layer protocol) value from the IPv6 datagram."""
+    """Return the next header (upper layer protocol) from the IPv6 datagram."""
     for pkt in cap:
         if hasattr(pkt, 'ipv6'):
             try:
@@ -265,12 +285,10 @@ def answer_q25(cap):
         if hasattr(pkt, 'dns'):
             try:
                 if pkt.dns.flags_response == "1":
-                    # Many responses list answers in a comma-separated field; attempt to split.
                     aaaa = pkt.dns.get_field('a')
                     if aaaa:
                         addresses = aaaa.split(',')
                         return len(addresses)
-                    # Otherwise, if a single answer is present:
                     return 1
             except Exception:
                 continue
@@ -301,67 +319,88 @@ def analyze_ipv4_file(capture_file, label):
         print(f"Error: File '{capture_file}' not found.")
         return
 
-    # Q1
+    # Basic IPv4 questions
     q1 = answer_q1(cap)
     print("\nQuestion 1: IP address of the computer (first UDP traceroute segment)")
     print(f"  a) IP address: {q1}" if q1 else "  a) Not found.")
 
-    # Q2
     q2 = answer_q2(cap)
     print("\nQuestion 2: TTL value in the IPv4 header")
     print(f"  a) TTL: {q2}" if q2 else "  a) TTL not found.")
 
-    # Q3
     q3 = answer_q3(cap)
     print("\nQuestion 3: Upper layer protocol field")
     print(f"  a) Protocol number: {q3}" if q3 else "  a) Not found.")
 
-    # Q4
     q4 = answer_q4(cap)
     print("\nQuestion 4: IP header length (bytes)")
     print(f"  a) IP header length: {q4}" if q4 else "  a) Not found.")
 
-    # Q5
     q5 = answer_q5(cap)
     print("\nQuestion 5: Payload size (bytes)")
     print(f"  a) Payload bytes: {q5}" if q5 is not None else "  a) Not determined.")
 
-    # Q6
     q6 = answer_q6(cap)
     print("\nQuestion 6: Has the datagram been fragmented?")
     print(f"  a) Fragmentation: {q6}")
 
-    # Q7
     q7 = answer_q7(cap)
     print("\nQuestion 7: Fields that change among UDP datagrams")
     print(f"  a) {q7}")
 
-    # Q8
     q8 = answer_q8(cap)
     print("\nQuestion 8: Fields that remain constant among UDP datagrams")
     print(f"  a) {q8}")
 
-    # Q9
     q9 = answer_q9(cap)
     print("\nQuestion 9: Pattern in the Identification field")
     print(f"  a) {q9}")
 
-    # Q10
     q10 = answer_q10(cap)
     print("\nQuestion 10: Upper layer protocol in router (ICMP) responses")
     print(f"  a) Protocol: {q10}")
 
-    # Q11
     q11 = answer_q11(cap)
     print("\nQuestion 11: Comparison of Identification field in ICMP packets")
     print(f"  a) {q11}")
 
-    # Q12
     q12 = answer_q12(cap)
     print("\nQuestion 12: Similarity of TTL fields in ICMP packets")
     print(f"  a) {q12}")
 
-    cap.close()
+    # Fragmentation questions (Part 2)
+    q13 = answer_q13(cap)
+    print("\nQuestion 13: Fragmentation detection for large UDP segment (3000 bytes)")
+    print(f"  a) {q13}")
+
+    q14 = answer_q14(cap)
+    print("\nQuestion 14: IP header fragmentation indicators")
+    print(f"  a) {q14}")
+
+    q15 = answer_q15(cap)
+    print("\nQuestion 15: Fragment order indicator")
+    print(f"  a) {q15}")
+
+    q16 = answer_q16(cap)
+    print("\nQuestion 16: Total length of fragmented IP datagram")
+    print(f"  a) {q16}")
+
+    q17 = answer_q17(cap)
+    print("\nQuestion 17: Indicator that a fragment is not the first fragment")
+    print(f"  a) {q17}")
+
+    q18 = answer_q18(cap)
+    print("\nQuestion 18: Fields changed between first and second fragments")
+    print(f"  a) {q18}")
+
+    q19 = answer_q19(cap)
+    print("\nQuestion 19: Indicator that a fragment is the last fragment")
+    print(f"  a) {q19}")
+
+    try:
+        cap.close()
+    except Exception as e:
+        print("Error closing IPv4 capture:", e)
     print(f"\n📡 IPv4 analysis on {label} file complete.\n")
 
 def analyze_ipv6_file(capture_file, label):
@@ -372,42 +411,38 @@ def analyze_ipv6_file(capture_file, label):
         print(f"Error: File '{capture_file}' not found.")
         return
 
-    # Q20
     q20 = answer_q20(cap)
     print("\nQuestion 20: IPv6 source address of DNS AAAA request")
     print(f"  a) IPv6 source: {q20}" if q20 else "  a) Not found.")
 
-    # Q21
     q21 = answer_q21(cap)
     print("\nQuestion 21: IPv6 destination address of DNS AAAA request")
     print(f"  a) IPv6 destination: {q21}" if q21 else "  a) Not found.")
 
-    # Q22
     q22 = answer_q22(cap)
     print("\nQuestion 22: Flow label in IPv6 datagram")
     print(f"  a) Flow label: {q22}" if q22 else "  a) Not found.")
 
-    # Q23
     q23 = answer_q23(cap)
     print("\nQuestion 23: IPv6 payload length")
     print(f"  a) Payload length: {q23}" if q23 else "  a) Not found.")
 
-    # Q24
     q24 = answer_q24(cap)
     print("\nQuestion 24: Next header (upper layer protocol) in IPv6 datagram")
     print(f"  a) Next header: {q24}" if q24 else "  a) Not found.")
 
-    # Q25
     q25 = answer_q25(cap)
     print("\nQuestion 25: Count of IPv6 addresses returned in the DNS response")
     print(f"  a) Count: {q25}" if q25 is not None else "  a) Not determined.")
 
-    # Q26
     q26 = answer_q26(cap)
     print("\nQuestion 26: First IPv6 address from the DNS response for youtube.com")
     print(f"  a) First IPv6 address: {q26}" if q26 else "  a) Not found.")
 
-    cap.close()
+    try:
+        cap.close()
+    except Exception as e:
+        print("Error closing IPv6 capture:", e)
     print(f"\n📡 IPv6 analysis on {label} file complete.\n")
 
 # --- Main Program ---
