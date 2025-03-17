@@ -1,5 +1,5 @@
 # MSCS631_WireShark_5
-Wireshark – Lab 5: IP
+Wireshark – Lab 5: Wireshark: IP Protocol, Fragmentation, and IPv6
 
 **Samrat Baral**
 
@@ -29,6 +29,8 @@ The lab requires you to inspect packet headers in Wireshark, answer questions ab
 ![1](/screenshots/Capture-1.png)  
 ![2](/screenshots/Capture-2.png)  
 ![3](/screenshots/Capture-3.png)  
+![4](/screenshots/Capture-4.png)  
+
 
 
 ## Prerequisites
@@ -48,22 +50,6 @@ python3 lab5.py
 - Examination of UDP, ICMP, and fragmented datagrams
 - IPv6 packet inspection and DNS AAAA request analysis
 
-Below is the complete Markdown file content for your lab report. Save this text as lab5.md in your project directory.
-
-# MSCS631_WireShark_5
-Wireshark – Lab 5: IP Protocol, Fragmentation, and IPv6
-
-**Your Name**
-
-University Name
-
-2025 Spring – Advanced Computer Networks (MSCS-631-M40) – Full Term
-
-Dr. Yousef Nijim
-
-March 2, 2025
-
----
 
 # Lab Overview
 
