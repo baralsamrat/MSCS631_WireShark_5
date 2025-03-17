@@ -198,7 +198,4 @@ Next header: 17
 
  Not found
 
-Conclusion
 
-Summarize your findings and insights from the lab analysis here.
-You now have a complete lab report template in Markdown that includes all questions and placeholders for your answers.
